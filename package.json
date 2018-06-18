@@ -1,0 +1,12 @@
+{
+  "name": "GearBot",
+  "version": "1.0.1",
+  "description": "A Discord bot made in JavaScript. Uses Node.js and Discord.js",
+  "main": "bot.js",
+  "author": "Vilhelm Hansson",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.3.2",
+    "eslint": "^4.19.1"
+  }
+}

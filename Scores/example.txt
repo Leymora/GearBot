@@ -1,0 +1,2 @@
+0
+*Everytime a user writes in the chat their score goes up with 0.2 points*
