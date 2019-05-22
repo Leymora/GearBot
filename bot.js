@@ -8,7 +8,7 @@
 //Require the discord.js module (npm install discord.js)
 const Discord = require('discord.js');
 //Require the config file
-var { prefix, token } = require('./config.json');
+var { prefix, token, ownerID } = require('./config.json');
 
 const package = require('./package.json');
 
@@ -23,7 +23,7 @@ const client = new Discord.Client();
 
 
 client.on('ready', () => {
-    console.log(`\n\n--------------- GearBot Version: ${package.version} ------------- Vilhelm Hansson 2018`);
+    console.log(`\n\n--------------- GearBot Version: ${package.version} ------------- Vilhelm Hansson 2019`);
     console.log(`Connected Successfully!`);
     console.log(`Bot Name: ${client.user.username}`);
     console.log(`Bot ID: ${client.user.id}`);
@@ -55,7 +55,10 @@ client.on('message', message => {
 	{
 		userScore = fs.readFileSync(`./Scores/${message.author.id}.txt`, {"encoding": "utf-8"});
 		var newUserScore = parseFloat(userScore) + 0.2;
-		fs.writeFileSync(`./Scores/${message.author.id}.txt`, newUserScore.toFixed(1));		
+        fs.writeFileSync(`./Scores/${message.author.id}.txt`, newUserScore.toFixed(1));
+        if (newUserScore == 10) 	message.channel.send(`Congratulations <@${message.author.id}> ! You just leveled up to: **Member ⭐**`);	
+        if (newUserScore == 30) 	message.channel.send(`Congratulations <@${message.author.id}> ! You just leveled up to: **Great Member ⭐⭐**`);	
+        if (newUserScore == 80) 	message.channel.send(`Congratulations <@${message.author.id}> ! You just leveled up to: **Master Member ⭐⭐⭐**`);	
     }
  //--------------------------------------------------------------------------------------------------------  
 
@@ -67,6 +70,7 @@ client.on('message', message => {
  }
 //-------------------------------------------------------------------------------------------------------- 
 
+
     function checkRank()
 	{
 		userScore = fs.readFileSync(`./Scores/${message.author.id}.txt`, {"encoding": "utf-8"});
@@ -74,7 +78,8 @@ client.on('message', message => {
 		Math.floor(rankScore);
 		if(rankScore < 10)
 		{
-            var emoji = client.emojis.find("name", "feelsrope");
+            //var emoji = client.emojis.find("name", "feelsrope");
+            var emoji = client.emojis.find(emojis => emojis.name === "feelsrope");
 			userRank = `Incel ${emoji}`;
 		}
 		if(rankScore >= 10)
@@ -162,9 +167,11 @@ function makeBadge()
             case `truescore`: readScore(), checkRank(), message.channel.send(`<@${message.author.id}>\nYour score is: **${userScore}**!\nRank: **${userRank}**`); break;
             case `rtd`: readScore(), rtd(); break;
             case `downloadbot`: message.channel.send(`https://github.com/SentimentalWoosh/GearBot`); break;
+            case `join`: if (message.member.voiceChannel) {message.member.voiceChannel.join()} break;
+            case `leave`: if (message.member.voiceChannel) {message.member.voiceChannel.leave()} break;
             case `dj`: if(client.user.avatar != `bb74ed375913dfda9b7c28984f0b1be7`){ client.user.setAvatar(`./Avatars/GearBotDJ.png`);} client.user.setActivity('Music'); break;
             case `changeprefix`: if(!args.length){message.channel.send("No prefix given. Prefix unchanged.")} else { changePrefix(args[0]);  message.channel.send(`Prefix successfully changed to ${prefix}`); } break;
-            case `shutdown`: if(message.author.id == `224965299848478720`){ message.channel.send(`Shutting Down 👋`); process.exit();} else message.reply.send(`Only the server owner can access this command`); break;
+            case `shutdown`: if(message.author.id == ownerID){ message.channel.send(`Shutting Down 👋`); process.exit();} else message.reply.send(`Only the server owner can access this command`); break;
             case `shop`: readScore(); 
                         if(!args.length){ 
                         message.channel.send("Shop alternatives:\n**Nickname <Desired Nickname> (10 Points)** "); 
@@ -176,7 +183,7 @@ function makeBadge()
                                 else if (userScore < 10){
                                         message.channel.send(`<@${message.author.id}> You don't have enough points. (Requires **10** points)`)
                                 }
-                                else message.guild.members.get(message.author.id).setNickname(args[1]); removeScore(10);
+                                else {message.guild.members.get(message.author.id).setNickname(args[1]); removeScore(10);}
                         } break;
         }
     }
@@ -184,7 +191,7 @@ function makeBadge()
     switch(message.content)
     {
         case `help`: message.channel.send(`Hi <@${message.author.id}> \nBot prefix: **${prefix}**\nType ${prefix}commands to know more`); break;
-        default: readScore(), addScore(); break;
+        default: readScore(), checkRank(), addScore(); break;
     }
 
 
