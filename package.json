@@ -7,6 +7,10 @@
   "license": "ISC",
   "dependencies": {
     "discord.js": "^11.3.2",
-    "eslint": "^4.19.1"
+    "eslint": "^4.19.1",
+    "ffmpeg-binaries": "^4.0.0",
+    "node-opus": "^0.3.2",
+    "ytdl-core": "^0.29.2",
+    "ytdl-core-discord": "^1.0.3"
   }
 }

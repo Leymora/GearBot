@@ -1,4 +1,4 @@
-//Vilhelm Hansson 2018
+//Vilhelm Hansson 2018 - 2019
 //Started development: 05-14-2018
 
 //Add bot to server https://discordapp.com/oauth2/authorize?client_id=CLIENTID&scope=bot
@@ -17,6 +17,10 @@ var readline = require('readline');
 var userScore = 0;
 var userRank = "Default";
 var dice = './Images/Dice1.png';
+  
+//Music Stuff
+const YTDL = require('ytdl-core');
+global.servers = {};
 
 //Create a new Discord client
 const client = new Discord.Client();
@@ -144,6 +148,17 @@ function makeBadge()
 
 }
 
+//-----------------------------------------------------------------------------
+function playMusic(url)
+{
+
+    if (message.member.voiceChannel)
+    { 
+        message.member.voiceChannel.join().then(connection =>{ const dispatcher = connection.playStream(YTDL(url)); } ) 
+    }
+}
+//-----------------------------------------------------------------------------
+
 //------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -167,9 +182,11 @@ function makeBadge()
             case `truescore`: readScore(), checkRank(), message.channel.send(`<@${message.author.id}>\nYour score is: **${userScore}**!\nRank: **${userRank}**`); break;
             case `rtd`: readScore(), rtd(); break;
             case `downloadbot`: message.channel.send(`https://github.com/SentimentalWoosh/GearBot`); break;
-            case `join`: if (message.member.voiceChannel) {message.member.voiceChannel.join()} break;
-            case `leave`: if (message.member.voiceChannel) {message.member.voiceChannel.leave()} break;
-            case `dj`: if(client.user.avatar != `bb74ed375913dfda9b7c28984f0b1be7`){ client.user.setAvatar(`./Avatars/GearBotDJ.png`);} client.user.setActivity('Music'); break;
+            case `join`: if (message.member.voiceChannel){ message.member.voiceChannel.join()}; break;
+            case `leave`: if (message.member.voiceChannel){ message.member.voiceChannel.leave()} break;
+            case `play`: playMusic(args[0]); break;
+            case `pause`: dispatcher.pause(); break;
+            case `resume`: dispatcher.resume(); break;
             case `changeprefix`: if(!args.length){message.channel.send("No prefix given. Prefix unchanged.")} else { changePrefix(args[0]);  message.channel.send(`Prefix successfully changed to ${prefix}`); } break;
             case `shutdown`: if(message.author.id == ownerID){ message.channel.send(`Shutting Down 👋`); process.exit();} else message.reply.send(`Only the server owner can access this command`); break;
             case `shop`: readScore(); 
