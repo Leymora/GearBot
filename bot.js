@@ -20,7 +20,7 @@ var dice = './Images/Dice1.png';
   
 //Music Stuff
 const YTDL = require('ytdl-core');
-global.servers = {};
+var servers = {};
 
 //Create a new Discord client
 const client = new Discord.Client();
@@ -149,13 +149,52 @@ function makeBadge()
 }
 
 //-----------------------------------------------------------------------------
-function playMusic(url)
+function playMusic(connection, message)
+{
+    var server = servers[message.guild.id];
+
+    server.dispatcher = connection.playStream(YTDL(server.queue[0], { seek: 0, volume: 0.1, filter: "audioonly"}));
+
+    server.queue.shift();
+
+    server.dispatcher.on("end", function() {
+        if (server.queue[0]) playMusic(connection, message);
+    });
+}
+//-----------------------------------------------------------------------------
+
+function skipMusic()
+{
+    var server = servers[message.guild.id];
+    if(server.dispatcher) server.dispatcher.end();
+}
+//-----------------------------------------------------------------------------
+function playCommand()
 {
 
-    if (message.member.voiceChannel)
-    { 
-        message.member.voiceChannel.join().then(connection =>{ const dispatcher = connection.playStream(YTDL(url)); } ) 
+    if(!args[0])
+    {
+        message.channel.send(`I need a YouTube link`);
     }
+
+        servers[message.guild.id] = {
+        queue: []
+        };
+
+    var server = servers[message.guild.id];
+
+    server.queue.push(args[0]);
+
+    message.member.voiceChannel.join().then(function(connection) {
+        playMusic(connection, message);
+    });
+
+
+//    if (message.member.voiceChannel)
+//    { 
+//        message.member.voiceChannel.join().then(connection =>{ const dispatcher = connection.playStream(YTDL(url), { seek: 0, volume: 0.4 }); } ) 
+//    }
+
 }
 //-----------------------------------------------------------------------------
 
@@ -184,7 +223,8 @@ function playMusic(url)
             case `downloadbot`: message.channel.send(`https://github.com/SentimentalWoosh/GearBot`); break;
             case `join`: if (message.member.voiceChannel){ message.member.voiceChannel.join()}; break;
             case `leave`: if (message.member.voiceChannel){ message.member.voiceChannel.leave()} break;
-            case `play`: playMusic(args[0]); break;
+            case `play`: playCommand(); break;
+            case `skip`: skipMusic(); break;
             case `pause`: dispatcher.pause(); break;
             case `resume`: dispatcher.resume(); break;
             case `changeprefix`: if(!args.length){message.channel.send("No prefix given. Prefix unchanged.")} else { changePrefix(args[0]);  message.channel.send(`Prefix successfully changed to ${prefix}`); } break;
@@ -208,6 +248,7 @@ function playMusic(url)
     switch(message.content)
     {
         case `help`: message.channel.send(`Hi <@${message.author.id}> \nBot prefix: **${prefix}**\nType ${prefix}commands to know more`); break;
+        case `hello`: message.channel.send(`Hi <@${message.author.id}> 👋 `); break;
         default: readScore(), checkRank(), addScore(); break;
     }
 
